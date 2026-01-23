@@ -72,7 +72,7 @@ const getStandardFuse = (amps) => {
     return standards.find(s => s >= amps) || 32;
 };
 
-export default function SolarInverterMatcherV3_3() {
+export default function SolarInverterMatcherV3_4() {
   const [brands, setBrands] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState('');
   const [filteredInverters, setFilteredInverters] = useState([]);
@@ -118,14 +118,25 @@ export default function SolarInverterMatcherV3_3() {
     // --- DC Protection ---
     const dcFuseRating = getStandardFuse(selectedPanel.isc * 1.5);
     
-    // DC Breaker Calculation: Voc * 1.25 -> Select Model
-    const reqDcBreakerVoltage = currentStringVoc * 1.25;
-    let dcBreakerVoltageModel = "1000Vdc"; // Default max
-    if (reqDcBreakerVoltage <= 550) dcBreakerVoltageModel = "550Vdc";
-    else if (reqDcBreakerVoltage <= 800) dcBreakerVoltageModel = "800Vdc";
+    // DC Breaker Calculation: Voc * 1.25
+    const reqDcVoltage = currentStringVoc * 1.25;
+    
+    let dcBreakerVoltageModel = "1000Vdc"; 
+    if (reqDcVoltage <= 550) dcBreakerVoltageModel = "550Vdc";
+    else if (reqDcVoltage <= 800) dcBreakerVoltageModel = "800Vdc";
     
     const dcBreakerRating = getStandardBreaker(selectedPanel.isc * 1.25); 
-    const dcSpdVoltage = currentStringVoc > 600 ? "1000V" : "600V";
+
+    // DC Surge Calculation (UPDATED V3.4)
+    // Voc * 1.25 -> 600V(2P), 800V(2P), 1000V(3P)
+    let dcSpdSpec = "1000Vdc 3P"; 
+    if (reqDcVoltage <= 600) {
+        dcSpdSpec = "600Vdc 2P";
+    } else if (reqDcVoltage <= 800) {
+        dcSpdSpec = "800Vdc 2P";
+    } else {
+        dcSpdSpec = "1000Vdc 3P";
+    }
     
     // Quantity Calculation
     const qtyDcFuse = activeStrings * 2;
@@ -142,7 +153,7 @@ export default function SolarInverterMatcherV3_3() {
     }
     const acBreakerSize = getStandardBreaker(acCurrent * 1.25);
     
-    // AC Specs (Pole Specification)
+    // AC Specs
     const acPoles = selectedInv.phase === 1 ? "(2P)" : "(4P)";
     
     const acSpdType = selectedInv.phase === 1 ? "1P+N (2P)" : "3P+N (4P)";
@@ -159,9 +170,9 @@ export default function SolarInverterMatcherV3_3() {
       isVoltageSafe, isStartUp, isPowerSafe, isCurrentSafe,
       // Protection Specs
       dcFuseRating, 
-      dcBreakerRating, dcBreakerVoltageModel, // Added Voltage Model
-      dcSpdVoltage,
-      acCurrent, acBreakerSize, acPoles, // Added Poles
+      dcBreakerRating, dcBreakerVoltageModel, 
+      dcSpdSpec, // Updated
+      acCurrent, acBreakerSize, acPoles,
       acSpdType, acSpdVoltage, rcboSize,
       // Protection Quantities
       qtyDcFuse, qtyDcBreaker, qtyDcSpd,
@@ -177,7 +188,7 @@ export default function SolarInverterMatcherV3_3() {
         
         {/* HEADER */}
         <div className="bg-[#1e293b] p-6 text-white flex justify-between items-center">
-            <div><h1 className="text-2xl font-bold">UD Solarmax Inverter Tool V3.3</h1><p className="text-gray-400 text-sm">Protection Detail & Full Safety Check</p></div>
+            <div><h1 className="text-2xl font-bold">UD Solarmax Inverter Tool V3.4</h1><p className="text-gray-400 text-sm">Protection Detail (DC Surge Optimized)</p></div>
             <div className="text-right"><div className="text-xs text-green-400">Database Ready</div></div>
         </div>
 
@@ -251,7 +262,7 @@ export default function SolarInverterMatcherV3_3() {
                     </div>
                 </div>
 
-                {/* 3. PROTECTION DEVICES (UPDATED V3.3) */}
+                {/* 3. PROTECTION DEVICES (UPDATED V3.4) */}
                 <div className="bg-white border-2 border-blue-100 rounded-lg p-5 shadow-sm">
                     <h3 className="text-md font-bold text-blue-800 mb-4 flex items-center gap-2">🛠️ รายการอุปกรณ์ป้องกัน (BoS)</h3>
                     
@@ -279,7 +290,7 @@ export default function SolarInverterMatcherV3_3() {
                         </div>
                         <div className="grid grid-cols-4 items-center p-2 border-b border-gray-100">
                             <div className="col-span-2 text-gray-700">DC Surge (SPD)</div>
-                            <div className="text-center font-bold text-orange-600">{result.dcSpdVoltage}</div>
+                            <div className="text-center font-bold text-orange-600 text-xs">{result.dcSpdSpec}</div>
                             <div className="text-right font-bold text-red-500">{result.qtyDcSpd} ตัว</div>
                         </div>
 
@@ -305,8 +316,7 @@ export default function SolarInverterMatcherV3_3() {
                     </div>
 
                     <div className="text-[10px] text-gray-400 mt-3 bg-gray-50 p-2 rounded">
-                        * จำนวนฝั่ง DC คำนวณจาก: {activeStrings} สตริง (Fuse x2, Breaker x1, SPD x1 ต่อสตริง)<br/>
-                        * DC Breaker Voltage เลือกตาม Voc x 1.25 (550V/800V/1000V)
+                        * DC Surge คำนวณตาม Voc x 1.25 (เลือก 600V 2P / 800V 2P / 1000V 3P)
                     </div>
                 </div>
 
