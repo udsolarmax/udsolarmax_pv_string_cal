@@ -27,6 +27,7 @@ const DB_INVERTERS = [
   
   // --- DEYE ---
   { id: 'deye_5k_sg03', brand: 'Deye', model: 'SUN-5K-SG03LP1-EU (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 6.5, maxIsc: 13, phase: 1 },
+  { id: 'deye_5k_sg04', brand: 'Deye', model: 'SUN-5K-SG04LP1-EU-SM2 (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 7.5, maxIsc: 27, phase: 1 },
   { id: 'deye_8k_sg01', brand: 'Deye', model: 'SUN-8K-SG01LP1-EU (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 2, ratedAcKw: 8.0, maxDcKw: 10.4, maxIsc: 26, phase: 1 },
   { id: 'deye_12k_sg04', brand: 'Deye', model: 'SUN-12K-SG04LP3-EU (3P Hybrid)', maxDcV: 800, startV: 160, mpptCount: 2, maxStrings: 2, ratedAcKw: 12.0, maxDcKw: 15.6, maxIsc: 34, phase: 3 },
 
