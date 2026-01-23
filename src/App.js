@@ -72,7 +72,7 @@ const getStandardFuse = (amps) => {
     return standards.find(s => s >= amps) || 32;
 };
 
-export default function SolarInverterMatcherV3_2() {
+export default function SolarInverterMatcherV3_3() {
   const [brands, setBrands] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState('');
   const [filteredInverters, setFilteredInverters] = useState([]);
@@ -117,6 +117,13 @@ export default function SolarInverterMatcherV3_2() {
     
     // --- DC Protection ---
     const dcFuseRating = getStandardFuse(selectedPanel.isc * 1.5);
+    
+    // DC Breaker Calculation: Voc * 1.25 -> Select Model
+    const reqDcBreakerVoltage = currentStringVoc * 1.25;
+    let dcBreakerVoltageModel = "1000Vdc"; // Default max
+    if (reqDcBreakerVoltage <= 550) dcBreakerVoltageModel = "550Vdc";
+    else if (reqDcBreakerVoltage <= 800) dcBreakerVoltageModel = "800Vdc";
+    
     const dcBreakerRating = getStandardBreaker(selectedPanel.isc * 1.25); 
     const dcSpdVoltage = currentStringVoc > 600 ? "1000V" : "600V";
     
@@ -135,10 +142,12 @@ export default function SolarInverterMatcherV3_2() {
     }
     const acBreakerSize = getStandardBreaker(acCurrent * 1.25);
     
-    // AC Specs (Updated)
+    // AC Specs (Pole Specification)
+    const acPoles = selectedInv.phase === 1 ? "(2P)" : "(4P)";
+    
     const acSpdType = selectedInv.phase === 1 ? "1P+N (2P)" : "3P+N (4P)";
     const acSpdVoltage = selectedInv.phase === 1 ? "275 VAC" : "420 VAC";
-    const rcboSize = acBreakerSize; // RCBO ใช้ขนาดเดียวกับ Breaker Main
+    const rcboSize = acBreakerSize;
 
     // AC Quantity
     const qtyAcBreaker = 1;
@@ -149,8 +158,11 @@ export default function SolarInverterMatcherV3_2() {
       maxVocPerPanel, maxPanelsPossible, minPanelsPossible, currentStringVoc, currentStringVmp, totalPower,
       isVoltageSafe, isStartUp, isPowerSafe, isCurrentSafe,
       // Protection Specs
-      dcFuseRating, dcBreakerRating, dcSpdVoltage,
-      acCurrent, acBreakerSize, acSpdType, acSpdVoltage, rcboSize,
+      dcFuseRating, 
+      dcBreakerRating, dcBreakerVoltageModel, // Added Voltage Model
+      dcSpdVoltage,
+      acCurrent, acBreakerSize, acPoles, // Added Poles
+      acSpdType, acSpdVoltage, rcboSize,
       // Protection Quantities
       qtyDcFuse, qtyDcBreaker, qtyDcSpd,
       qtyAcBreaker, qtyAcSpd, qtyRcbo
@@ -165,7 +177,7 @@ export default function SolarInverterMatcherV3_2() {
         
         {/* HEADER */}
         <div className="bg-[#1e293b] p-6 text-white flex justify-between items-center">
-            <div><h1 className="text-2xl font-bold">UD Solarmax Inverter Tool V3.2</h1><p className="text-gray-400 text-sm">Protection Detail & Full Safety Check</p></div>
+            <div><h1 className="text-2xl font-bold">UD Solarmax Inverter Tool V3.3</h1><p className="text-gray-400 text-sm">Protection Detail & Full Safety Check</p></div>
             <div className="text-right"><div className="text-xs text-green-400">Database Ready</div></div>
         </div>
 
@@ -228,25 +240,18 @@ export default function SolarInverterMatcherV3_2() {
                     </div>
                 </div>
 
-                {/* 2. SAFETY CHECK (Restored Full 4 Items) */}
+                {/* 2. SAFETY CHECK */}
                 <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
                     <h3 className="text-md font-bold text-gray-800 mb-3 flex items-center gap-2">🛡️ Safety Check</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {/* 1. Voltage */}
                         <div className={`flex justify-between items-center p-3 rounded ${result.isVoltageSafe ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}><div><div className="font-bold text-xs">แรงดันรวม (Voc)</div><div className="text-[10px]">{result.currentStringVoc.toFixed(0)}V / Max {selectedInv.maxDcV}V</div></div><div className="font-bold">{result.isVoltageSafe ? 'PASS' : 'FAIL'}</div></div>
-                        
-                        {/* 2. Power */}
                         <div className={`flex justify-between items-center p-3 rounded ${result.isPowerSafe ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}><div><div className="font-bold text-xs">กำลังผลิต (Power)</div><div className="text-[10px]">{(result.totalPower/1000).toFixed(1)}kW / Max {(selectedInv.maxDkW/1000).toFixed(1)}kW</div></div><div className="font-bold">{result.isPowerSafe ? 'PASS' : 'FAIL'}</div></div>
-
-                        {/* 3. Current */}
                         <div className={`flex justify-between items-center p-3 rounded ${result.isCurrentSafe ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}><div><div className="font-bold text-xs">กระแสแผง (Isc)</div><div className="text-[10px]">{selectedPanel.isc}A / Max {selectedInv.maxIsc}A</div></div><div className="font-bold">{result.isCurrentSafe ? 'PASS' : 'FAIL'}</div></div>
-                        
-                        {/* 4. Start-up Voltage */}
                         <div className={`flex justify-between items-center p-3 rounded ${result.isStartUp ? 'bg-blue-50 text-blue-800 border border-blue-200' : 'bg-yellow-50 text-yellow-800 border border-yellow-200'}`}><div><div className="font-bold text-xs">แรงดันทำงาน (Vmp)</div><div className="text-[10px]">{result.currentStringVmp.toFixed(0)}V / Start {selectedInv.startV}V</div></div><div className="font-bold">{result.isStartUp ? 'OK' : 'LOW'}</div></div>
                     </div>
                 </div>
 
-                {/* 3. PROTECTION DEVICES (UPDATED V3.2) */}
+                {/* 3. PROTECTION DEVICES (UPDATED V3.3) */}
                 <div className="bg-white border-2 border-blue-100 rounded-lg p-5 shadow-sm">
                     <h3 className="text-md font-bold text-blue-800 mb-4 flex items-center gap-2">🛠️ รายการอุปกรณ์ป้องกัน (BoS)</h3>
                     
@@ -266,7 +271,10 @@ export default function SolarInverterMatcherV3_2() {
                         </div>
                         <div className="grid grid-cols-4 items-center p-2 border-b border-gray-100">
                             <div className="col-span-2 text-gray-700">DC Breaker (2P)</div>
-                            <div className="text-center font-bold text-blue-600">{result.dcBreakerRating} A</div>
+                            <div className="text-center flex flex-col items-center">
+                                <span className="font-bold text-blue-600">{result.dcBreakerRating} A</span>
+                                <span className="text-[10px] bg-blue-100 text-blue-800 px-1 rounded">{result.dcBreakerVoltageModel}</span>
+                            </div>
                             <div className="text-right font-bold text-red-500">{result.qtyDcBreaker} ตัว</div>
                         </div>
                         <div className="grid grid-cols-4 items-center p-2 border-b border-gray-100">
@@ -275,13 +283,12 @@ export default function SolarInverterMatcherV3_2() {
                             <div className="text-right font-bold text-red-500">{result.qtyDcSpd} ตัว</div>
                         </div>
 
-                        {/* AC SIDE (Split Rows) */}
+                        {/* AC SIDE */}
                         <div className="grid grid-cols-4 items-center p-2 border-b border-gray-100 bg-blue-50/50">
                             <div className="col-span-2 text-gray-700">AC Breaker (Main)</div>
-                            <div className="text-center font-bold text-green-600">{result.acBreakerSize} A</div>
+                            <div className="text-center font-bold text-green-600">{result.acBreakerSize} A {result.acPoles}</div>
                             <div className="text-right font-bold text-red-500">{result.qtyAcBreaker} ตัว</div>
                         </div>
-                        {/* AC Surge (New Row) */}
                         <div className="grid grid-cols-4 items-center p-2 border-b border-gray-100 bg-blue-50/50">
                             <div className="col-span-2 text-gray-700">AC Surge Protection</div>
                             <div className="text-center flex flex-col items-center">
@@ -290,17 +297,16 @@ export default function SolarInverterMatcherV3_2() {
                             </div>
                             <div className="text-right font-bold text-red-500">{result.qtyAcSpd} ตัว</div>
                         </div>
-                         {/* RCBO (New Row) */}
                         <div className="grid grid-cols-4 items-center p-2 bg-blue-50/50">
                             <div className="col-span-2 text-gray-700">RCBO</div>
-                            <div className="text-center font-bold text-green-600">{result.rcboSize} A</div>
+                            <div className="text-center font-bold text-green-600">{result.rcboSize} A {result.acPoles}</div>
                             <div className="text-right font-bold text-red-500">{result.qtyRcbo} ตัว</div>
                         </div>
                     </div>
 
                     <div className="text-[10px] text-gray-400 mt-3 bg-gray-50 p-2 rounded">
                         * จำนวนฝั่ง DC คำนวณจาก: {activeStrings} สตริง (Fuse x2, Breaker x1, SPD x1 ต่อสตริง)<br/>
-                        * จำนวนฝั่ง AC คำนวณเป็น 1 ชุดต่ออินเวอร์เตอร์
+                        * DC Breaker Voltage เลือกตาม Voc x 1.25 (550V/800V/1000V)
                     </div>
                 </div>
 
