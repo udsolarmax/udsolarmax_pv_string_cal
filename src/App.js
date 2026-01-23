@@ -72,7 +72,7 @@ const getStandardFuse = (amps) => {
     return standards.find(s => s >= amps) || 32;
 };
 
-export default function SolarInverterMatcherV3_6() {
+export default function SolarInverterMatcherV3_7() {
   const [brands, setBrands] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState('');
   const [filteredInverters, setFilteredInverters] = useState([]);
@@ -102,20 +102,18 @@ export default function SolarInverterMatcherV3_6() {
     const vocCorrectionFactor = 1 + (tempDiff * (selectedPanel.tempCoeff / 100));
     const maxVocPerPanel = selectedPanel.voc * vocCorrectionFactor;
     
-    // --- UPDATED LOGIC FOR MAX PANELS (VOLTAGE & POWER) ---
-    // 1. Limit by Voltage (Voc)
-    const limitByVoltage = Math.floor(selectedInv.maxDcV / maxVocPerPanel);
+    // --- UPDATED LOGIC V3.7: Total Panels Calculation ---
+    // 1. Limit by Voltage (per string) then multiply by active strings
+    const limitPerString_Voltage = Math.floor(selectedInv.maxDcV / maxVocPerPanel);
+    const limitTotal_Voltage = limitPerString_Voltage * activeStrings;
     
-    // 2. Limit by Power (Max PV Input)
-    // Formula: (Max DC kW * 1000) / Panel Watt / Active Strings
+    // 2. Limit by Power (Total Max PV Input / Panel Watt)
     const totalMaxPowerWatt = selectedInv.maxDcKw * 1000;
-    const totalPanelsByPower = Math.floor(totalMaxPowerWatt / selectedPanel.pmax);
-    // Avoid division by zero
-    const safeActiveStrings = activeStrings > 0 ? activeStrings : 1;
-    const limitByPowerPerString = Math.floor(totalPanelsByPower / safeActiveStrings);
+    const limitTotal_Power = Math.floor(totalMaxPowerWatt / selectedPanel.pmax);
     
-    // Final Result: Choose the LOWER number (The constraint that is hit first)
-    const maxPanelsPossible = Math.min(limitByVoltage, limitByPowerPerString);
+    // Final Result: Choose the LOWER number (The Bottleneck)
+    // แสดงจำนวนรวมทั้งหมด ไม่ใช่ต่อสตริง
+    const maxTotalPanelsPossible = Math.min(limitTotal_Voltage, limitTotal_Power);
 
     const minPanelsPossible = Math.ceil(selectedInv.startV / selectedPanel.vmp);
     const currentStringVoc = maxVocPerPanel * panelsPerString;
@@ -129,8 +127,6 @@ export default function SolarInverterMatcherV3_6() {
     const isCurrentSafe = selectedPanel.isc <= selectedInv.maxIsc;
 
     // Protection Devices (BoS)
-    
-    // --- DC Protection ---
     const dcFuseRating = getStandardFuse(selectedPanel.isc * 1.5);
     const reqDcVoltage = currentStringVoc * 1.25;
     let dcBreakerVoltageModel = "1000Vdc"; 
@@ -139,7 +135,6 @@ export default function SolarInverterMatcherV3_6() {
     
     const dcBreakerRating = getStandardBreaker(selectedPanel.isc * 1.25); 
     
-    // DC Surge Optimized
     let dcSpdSpec = "1000Vdc 3P"; 
     if (reqDcVoltage <= 600) {
         dcSpdSpec = "600Vdc 2P";
@@ -153,7 +148,7 @@ export default function SolarInverterMatcherV3_6() {
     const qtyDcBreaker = activeStrings * 1;
     const qtyDcSpd = activeStrings * 1;
 
-    // --- AC Protection ---
+    // AC Protection
     const acPowerWatt = selectedInv.ratedAcKw * 1000; 
     let acCurrent = 0;
     if (selectedInv.phase === 1) {
@@ -173,17 +168,11 @@ export default function SolarInverterMatcherV3_6() {
     const qtyRcbo = 1;
 
     return {
-      maxVocPerPanel, maxPanelsPossible, minPanelsPossible, currentStringVoc, currentStringVmp, totalPower,
+      maxVocPerPanel, maxTotalPanelsPossible, minPanelsPossible, currentStringVoc, currentStringVmp, totalPower,
       isVoltageSafe, isStartUp, isPowerSafe, isCurrentSafe,
-      // Protection Specs
-      dcFuseRating, 
-      dcBreakerRating, dcBreakerVoltageModel, 
-      dcSpdSpec,
-      acCurrent, acBreakerSize, acPoles,
-      acSpdType, acSpdVoltage, rcboSize,
-      // Protection Quantities
-      qtyDcFuse, qtyDcBreaker, qtyDcSpd,
-      qtyAcBreaker, qtyAcSpd, qtyRcbo
+      dcFuseRating, dcBreakerRating, dcBreakerVoltageModel, dcSpdSpec,
+      acCurrent, acBreakerSize, acPoles, acSpdType, acSpdVoltage, rcboSize,
+      qtyDcFuse, qtyDcBreaker, qtyDcSpd, qtyAcBreaker, qtyAcSpd, qtyRcbo
     };
   };
 
@@ -195,7 +184,7 @@ export default function SolarInverterMatcherV3_6() {
         
         {/* HEADER */}
         <div className="bg-[#1e293b] p-6 text-white flex justify-between items-center">
-            <div><h1 className="text-2xl font-bold">UD Solarmax Inverter Tool V3.6</h1><p className="text-gray-400 text-sm">Logic Fixed: Max Panels by Voltage & Power</p></div>
+            <div><h1 className="text-2xl font-bold">UD Solarmax Inverter Tool V3.7</h1><p className="text-gray-400 text-sm">Logic Fixed: Total Max Panels</p></div>
             <div className="text-right"><div className="text-xs text-green-400">Database Ready</div></div>
         </div>
 
@@ -249,12 +238,18 @@ export default function SolarInverterMatcherV3_6() {
             {result && selectedInv && (
             <div className="lg:col-span-7 flex flex-col space-y-4">
                 
-                {/* 1. MATCHING RESULT */}
+                {/* 1. MATCHING RESULT (UPDATED V3.7) */}
                 <div className="bg-slate-900 text-white rounded-lg p-5 shadow-lg border-l-4 border-yellow-500">
                     <h3 className="text-md font-bold text-yellow-400 mb-4">⚡ ผลลัพธ์: {selectedInv.brand}</h3>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-slate-800 p-3 rounded text-center border border-slate-700"><div className="text-xs text-gray-400">ใส่ได้สูงสุด (Max)</div><div className="text-3xl font-bold text-green-400">{result.maxPanelsPossible} <span className="text-sm">แผง</span></div></div>
-                        <div className="bg-slate-800 p-3 rounded text-center border border-slate-700"><div className="text-xs text-gray-400">ใส่ขั้นต่ำ (Min)</div><div className="text-3xl font-bold text-yellow-400">{result.minPanelsPossible} <span className="text-sm">แผง</span></div></div>
+                        <div className="bg-slate-800 p-3 rounded text-center border border-slate-700">
+                            <div className="text-xs text-gray-400">ใส่ได้สูงสุด (รวม)</div>
+                            <div className="text-3xl font-bold text-green-400">{result.maxTotalPanelsPossible} <span className="text-sm">แผง</span></div>
+                        </div>
+                        <div className="bg-slate-800 p-3 rounded text-center border border-slate-700">
+                            <div className="text-xs text-gray-400">ใส่ขั้นต่ำ (Min)</div>
+                            <div className="text-3xl font-bold text-yellow-400">{result.minPanelsPossible} <span className="text-sm">แผง</span></div>
+                        </div>
                     </div>
                 </div>
 
