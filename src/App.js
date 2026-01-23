@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 // ==========================================
 // 1. DATABASE: ฐานข้อมูลอุปกรณ์
-// (Updated V3.0: เพิ่มระบุ Phase เพื่อคำนวณ AC Breaker)
 // ==========================================
 
 const DB_INVERTERS = [
@@ -63,7 +62,6 @@ const DB_PANELS = [
   { id: 'ja_550', brand: 'JA Solar', model: 'DeepBlue 3.0 550W', pmax: 550, voc: 49.90, vmp: 41.80, isc: 14.00, tempCoeff: -0.27 },
 ];
 
-// ฟังก์ชันช่วยหาขนาด Breaker/Fuse มาตรฐาน
 const getStandardBreaker = (amps) => {
     const standards = [10, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160];
     return standards.find(s => s >= amps) || 'Custom';
@@ -99,7 +97,7 @@ export default function SolarInverterMatcherV3() {
   const calculateResults = () => {
     if (!selectedInv) return null;
     
-    // 1. Solar Calculation
+    // Solar Calc
     const tempDiff = minTemp - 25;
     const vocCorrectionFactor = 1 + (tempDiff * (selectedPanel.tempCoeff / 100));
     const maxVocPerPanel = selectedPanel.voc * vocCorrectionFactor;
@@ -109,42 +107,48 @@ export default function SolarInverterMatcherV3() {
     const currentStringVmp = selectedPanel.vmp * panelsPerString;
     const totalPower = panelsPerString * activeStrings * selectedPanel.pmax;
 
-    // 2. Safety Checks
+    // Safety
     const isVoltageSafe = currentStringVoc <= selectedInv.maxDcV;
     const isStartUp = currentStringVmp >= selectedInv.startV;
     const isPowerSafe = totalPower <= selectedInv.maxDkW;
     const isCurrentSafe = selectedPanel.isc <= selectedInv.maxIsc;
 
-    // 3. Protection Devices Calculation (BoS)
+    // Protection Devices (BoS)
     
-    // --- DC Side (คำนวณจากแผง) ---
-    const dcFuseRating = getStandardFuse(selectedPanel.isc * 1.5); // เผื่อ 1.5 เท่า
-    const dcBreakerRating = getStandardBreaker(selectedPanel.isc * 1.25); // เผื่อ 1.25 เท่า
-    const dcSpdVoltage = currentStringVoc > 600 ? "1000V / 1100V" : "600V"; // เลือก SPD ตามแรงดันสตริง
+    // --- DC Protection ---
+    const dcFuseRating = getStandardFuse(selectedPanel.isc * 1.5);
+    const dcBreakerRating = getStandardBreaker(selectedPanel.isc * 1.25); 
+    const dcSpdVoltage = currentStringVoc > 600 ? "1000V" : "600V";
+    
+    // Quantity Calculation
+    const qtyDcFuse = activeStrings * 2; // 2 fuses (+/-) per string
+    const qtyDcBreaker = activeStrings * 1; // 1 breaker per string
+    const qtyDcSpd = activeStrings * 1; // 1 SPD per string
 
-    // --- AC Side (คำนวณจาก Inverter Output) ---
-    // สูตร: P = V * I (1 phase), P = V * I * 1.732 (3 phase)
-    // สมมติ Power Factor = 1 เพื่อความปลอดภัยสูงสุด (Max Current)
-    const acPowerWatt = selectedInv.maxDkW; // ใช้ Max Output ของ Inverter (ไม่ใช่แผง)
-    // หมายเหตุ: ปกติใช้ Rated Output แต่ใช้ Max PV เพื่อ Safety Factor สูงสุด หรือถ้ามีค่า Rated AC ให้ใช้ค่า Rated
-    
-    // ประมาณการ AC Output Current (Amps)
+    // --- AC Protection ---
+    const acPowerWatt = selectedInv.maxDkW;
     let acCurrent = 0;
     if (selectedInv.phase === 1) {
         acCurrent = (acPowerWatt / 220); 
     } else {
         acCurrent = (acPowerWatt / (380 * 1.732));
     }
-    
-    const acBreakerSize = getStandardBreaker(acCurrent * 1.25); // Breaker เผื่อ 1.25
+    const acBreakerSize = getStandardBreaker(acCurrent * 1.25);
     const acSpdType = selectedInv.phase === 1 ? "1P+N (2P)" : "3P+N (4P)";
+    
+    // AC Quantity (Per Inverter = 1)
+    const qtyAcBreaker = 1;
+    const qtyAcSpd = 1;
 
     return {
       maxVocPerPanel, maxPanelsPossible, minPanelsPossible, currentStringVoc, currentStringVmp, totalPower,
       isVoltageSafe, isStartUp, isPowerSafe, isCurrentSafe,
-      // Protection Data
+      // Protection Specs
       dcFuseRating, dcBreakerRating, dcSpdVoltage,
-      acCurrent, acBreakerSize, acSpdType
+      acCurrent, acBreakerSize, acSpdType,
+      // Protection Quantities
+      qtyDcFuse, qtyDcBreaker, qtyDcSpd,
+      qtyAcBreaker, qtyAcSpd
     };
   };
 
@@ -156,7 +160,7 @@ export default function SolarInverterMatcherV3() {
         
         {/* HEADER */}
         <div className="bg-[#1e293b] p-6 text-white flex justify-between items-center">
-            <div><h1 className="text-2xl font-bold">UD Solarmax Inverter Tool V3.0</h1><p className="text-gray-400 text-sm">Protection & BoS Calculator Included</p></div>
+            <div><h1 className="text-2xl font-bold">UD Solarmax Inverter Tool V3.1</h1><p className="text-gray-400 text-sm">Protection & Quantities</p></div>
             <div className="text-right"><div className="text-xs text-green-400">System Ready</div></div>
         </div>
 
@@ -221,59 +225,58 @@ export default function SolarInverterMatcherV3() {
 
                 {/* 2. SAFETY CHECK */}
                 <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
-                    <h3 className="text-md font-bold text-gray-800 mb-3 flex items-center gap-2">🛡️ Safety Check <span className="text-xs font-normal text-gray-400">(ตรวจสอบสเปค)</span></h3>
+                    <h3 className="text-md font-bold text-gray-800 mb-3 flex items-center gap-2">🛡️ Safety Check</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className={`flex justify-between items-center p-3 rounded ${result.isVoltageSafe ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}><div><div className="font-bold text-xs">แรงดันรวม (Voc)</div><div className="text-[10px]">{result.currentStringVoc.toFixed(0)}V / Max {selectedInv.maxDcV}V</div></div><div className="font-bold">{result.isVoltageSafe ? 'PASS' : 'FAIL'}</div></div>
                         <div className={`flex justify-between items-center p-3 rounded ${result.isCurrentSafe ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}><div><div className="font-bold text-xs">กระแสแผง (Isc)</div><div className="text-[10px]">{selectedPanel.isc}A / Max {selectedInv.maxIsc}A</div></div><div className="font-bold">{result.isCurrentSafe ? 'PASS' : 'FAIL'}</div></div>
                     </div>
                 </div>
 
-                {/* 3. PROTECTION DEVICES (NEW FEATURE!) */}
+                {/* 3. PROTECTION DEVICES (UPDATED) */}
                 <div className="bg-white border-2 border-blue-100 rounded-lg p-5 shadow-sm">
-                    <h3 className="text-md font-bold text-blue-800 mb-4 flex items-center gap-2">🛠️ แนะนำอุปกรณ์ป้องกัน (BoS Recommendation)</h3>
+                    <h3 className="text-md font-bold text-blue-800 mb-4 flex items-center gap-2">🛠️ รายการอุปกรณ์ป้องกัน (BoS)</h3>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* DC SIDE */}
-                        <div className="space-y-3">
-                            <div className="text-xs font-bold text-gray-500 uppercase tracking-wide border-b pb-1">ฝั่ง DC (จากแผง)</div>
-                            
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-600">DC Fuse (1P):</span>
-                                <span className="font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">{result.dcFuseRating} A</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-600">DC Breaker (2P):</span>
-                                <span className="font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">{result.dcBreakerRating} A</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-600">DC Surge (SPD):</span>
-                                <span className="font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded border border-orange-100">{result.dcSpdVoltage}</span>
-                            </div>
-                            <div className="text-[10px] text-gray-400 mt-1">*คำนวณจาก Isc x 1.5 และ Voc Max</div>
+                    {/* TABLE HEAD */}
+                    <div className="grid grid-cols-4 text-xs font-bold text-gray-500 bg-gray-50 p-2 rounded-t mb-2">
+                        <div className="col-span-2">รายการ (Item)</div>
+                        <div className="text-center">สเปค (Spec)</div>
+                        <div className="text-right">จำนวน (Qty)</div>
+                    </div>
+
+                    {/* DC SIDE */}
+                    <div className="space-y-2 text-sm">
+                        <div className="grid grid-cols-4 items-center p-2 border-b border-gray-100">
+                            <div className="col-span-2 text-gray-700">DC Fuse (1000V)</div>
+                            <div className="text-center font-bold text-blue-600">{result.dcFuseRating} A</div>
+                            <div className="text-right font-bold text-red-500">{result.qtyDcFuse} ตัว</div>
+                        </div>
+                        <div className="grid grid-cols-4 items-center p-2 border-b border-gray-100">
+                            <div className="col-span-2 text-gray-700">DC Breaker (2P)</div>
+                            <div className="text-center font-bold text-blue-600">{result.dcBreakerRating} A</div>
+                            <div className="text-right font-bold text-red-500">{result.qtyDcBreaker} ตัว</div>
+                        </div>
+                        <div className="grid grid-cols-4 items-center p-2 border-b border-gray-100">
+                            <div className="col-span-2 text-gray-700">DC Surge (SPD)</div>
+                            <div className="text-center font-bold text-orange-600">{result.dcSpdVoltage}</div>
+                            <div className="text-right font-bold text-red-500">{result.qtyDcSpd} ตัว</div>
                         </div>
 
                         {/* AC SIDE */}
-                        <div className="space-y-3">
-                            <div className="text-xs font-bold text-gray-500 uppercase tracking-wide border-b pb-1">ฝั่ง AC (เข้าบ้าน/กริด)</div>
-                            
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-600">ระบบไฟ (System):</span>
-                                <span className="font-bold text-gray-800">{selectedInv.phase} เฟส</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-600">กระแส Output:</span>
-                                <span className="font-mono text-xs text-gray-500">{result.acCurrent.toFixed(1)} A</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-600">AC Breaker (Main):</span>
-                                <span className="font-bold text-green-600 bg-green-50 px-2 py-1 rounded border border-green-100">{result.acBreakerSize} A</span>
-                            </div>
-                             <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-600">AC Surge / RCBO:</span>
-                                <span className="font-bold text-gray-700 bg-gray-100 px-2 py-1 rounded">{result.acSpdType}</span>
-                            </div>
-                            <div className="text-[10px] text-gray-400 mt-1">*คำนวณจาก Max Output / Voltage x 1.25</div>
+                        <div className="grid grid-cols-4 items-center p-2 border-b border-gray-100 bg-blue-50/50">
+                            <div className="col-span-2 text-gray-700">AC Breaker (Main)</div>
+                            <div className="text-center font-bold text-green-600">{result.acBreakerSize} A</div>
+                            <div className="text-right font-bold text-red-500">{result.qtyAcBreaker} ตัว</div>
                         </div>
+                        <div className="grid grid-cols-4 items-center p-2 bg-blue-50/50">
+                            <div className="col-span-2 text-gray-700">AC Surge / RCBO</div>
+                            <div className="text-center font-bold text-gray-700 text-xs">{result.acSpdType}</div>
+                            <div className="text-right font-bold text-red-500">{result.qtyAcSpd} ตัว</div>
+                        </div>
+                    </div>
+
+                    <div className="text-[10px] text-gray-400 mt-3 bg-gray-50 p-2 rounded">
+                        * จำนวนฝั่ง DC คำนวณจาก: {activeStrings} สตริง (Fuse x2, Breaker x1, SPD x1 ต่อสตริง)<br/>
+                        * จำนวนฝั่ง AC คำนวณเป็น 1 ชุดต่ออินเวอร์เตอร์
                     </div>
                 </div>
 
