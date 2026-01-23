@@ -6,10 +6,21 @@ import React, { useState, useEffect } from 'react';
 
 const DB_INVERTERS = [
   // --- HUAWEI (Grid-Tied) ---
-  { id: 'huawei_3k_l1', brand: 'Huawei', model: 'SUN2000-3KTL-L1', maxDcV: 600, startV: 100, mpptCount: 2, maxStrings: 2, maxDkW: 4500, maxIsc: 12.5 },
-  { id: 'huawei_5k_l1', brand: 'Huawei', model: 'SUN2000-5KTL-L1', maxDcV: 600, startV: 100, mpptCount: 2, maxStrings: 2, maxDkW: 7500, maxIsc: 12.5 },
-  { id: 'huawei_10k_m1', brand: 'Huawei', model: 'SUN2000-10KTL-M1', maxDcV: 1100, startV: 200, mpptCount: 2, maxStrings: 2, maxDkW: 15000, maxIsc: 13.5 },
-
+  { id: 'huawei_3k_l1', brand: 'Huawei', model: 'SUN2000-3KTL-L1', maxDcV: 600, startV: 100, mpptCount: 1, maxStrings: 2, maxDkW: 4500, maxIsc: 20 },
+  { id: 'huawei_5k_l1', brand: 'Huawei', model: 'SUN2000-5KTL-L1', maxDcV: 600, startV: 100, mpptCount: 1, maxStrings: 2, maxDkW: 7500, maxIsc: 20 },
+  { id: 'huawei_8k_lc0', brand: 'Huawei', model: 'SUN2000-8KTL-lc0', maxDcV: 600, startV: 100, mpptCount: 3, maxStrings: 3, maxDkW: 12000, maxIsc: 20 }, 
+  { id: 'huawei_10k_lc0', brand: 'Huawei', model: 'SUN2000-8KTL-lc0', maxDcV: 600, startV: 100, mpptCount: 3, maxStrings: 3, maxDkW: 15000, maxIsc: 20 }, 
+  { id: 'huawei_3k_m1', brand: 'Huawei', model: 'SUN2000-3KTL-M1', maxDcV: 1100, startV: 200, mpptCount: 1, maxStrings: 2, maxDkW: 4500, maxIsc: 19.5 },
+  { id: 'huawei_5k_m1', brand: 'Huawei', model: 'SUN2000-5KTL-M1', maxDcV: 1100, startV: 200, mpptCount: 1, maxStrings: 2, maxDkW: 7500, maxIsc: 19.5 },
+  { id: 'huawei_6k_m1', brand: 'Huawei', model: 'SUN2000-5KTL-M1', maxDcV: 1100, startV: 200, mpptCount: 1, maxStrings: 2, maxDkW: 9000, maxIsc: 19.5 },
+  { id: 'huawei_8k_m1', brand: 'Huawei', model: 'SUN2000-5KTL-M1', maxDcV: 1100, startV: 200, mpptCount: 1, maxStrings: 2, maxDkW: 12000, maxIsc: 19.5 },
+  { id: 'huawei_10k_m1', brand: 'Huawei', model: 'SUN2000-10KTL-M1', maxDcV: 1100, startV: 200, mpptCount: 1, maxStrings: 2, maxDkW: 15000, maxIsc: 19.5 },
+  { id: 'huawei_5k_map0', brand: 'Huawei', model: 'SUN2000-5KTL-MAP0', maxDcV: 1100, startV: 160, mpptCount: 1, maxStrings: 2, maxDkW: 9000, maxIsc: 22 },
+  { id: 'huawei_6k_map0', brand: 'Huawei', model: 'SUN2000-5KTL-MAP0', maxDcV: 1100, startV: 160, mpptCount: 1, maxStrings: 2, maxDkW: 11000, maxIsc: 22 },
+  { id: 'huawei_8k_map0', brand: 'Huawei', model: 'SUN2000-5KTL-MAP0', maxDcV: 1100, startV: 160, mpptCount: 1, maxStrings: 2, maxDkW: 9000, maxIsc: 22 },
+  { id: 'huawei_10k_map0', brand: 'Huawei', model: 'SUN2000-10KTL-MAP0', maxDcV: 1100, startV: 160, mpptCount: 1, maxStrings: 2, maxDkW: 14600, maxIsc: 22 },
+  { id: 'huawei_12k_map0', brand: 'Huawei', model: 'SUN2000-12KTL-MAP0', maxDcV: 1100, startV: 160, mpptCount: 1, maxStrings: 2, maxDkW: 22000, maxIsc: 22 },
+  
   // --- DEYE (Hybrid) ---
   { id: 'deye_5k_sg03', brand: 'Deye', model: 'SUN-5K-SG03LP1-EU (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 2, maxDkW: 6500, maxIsc: 13 },
   { id: 'deye_8k_sg01', brand: 'Deye', model: 'SUN-8K-SG01LP1-EU (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 2, maxDkW: 10400, maxIsc: 26 },
