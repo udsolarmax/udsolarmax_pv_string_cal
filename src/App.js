@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 
 // ==========================================
 // 1. DATABASE: ฐานข้อมูลอุปกรณ์
-// (Updated V3.5: แยก Rated AC Output กับ Max DC Input)
 // ==========================================
 
 const DB_INVERTERS = [
   // --- HUAWEI (Grid-Tied) ---
-  // ratedAcKw = กำลังไฟ AC ที่ปล่อยออก (ใช้คำนวณ Breaker)
-  // maxDcKw = กำลังแผงสูงสุดที่รับได้ (ใช้ Safety Check)
   { id: 'huawei_3k_l1', brand: 'Huawei', model: 'SUN2000-3KTL-L1', maxDcV: 600, startV: 100, mpptCount: 1, maxStrings: 2, ratedAcKw: 3.0, maxDcKw: 4.5, maxIsc: 20, phase: 1 },
   { id: 'huawei_5k_l1', brand: 'Huawei', model: 'SUN2000-5KTL-L1', maxDcV: 600, startV: 100, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 7.5, maxIsc: 20, phase: 1 },
   { id: 'huawei_8k_lc0', brand: 'Huawei', model: 'SUN2000-8KTL-lc0', maxDcV: 600, startV: 100, mpptCount: 3, maxStrings: 3, ratedAcKw: 8.0, maxDcKw: 12.0, maxIsc: 20, phase: 1 }, 
@@ -75,7 +72,7 @@ const getStandardFuse = (amps) => {
     return standards.find(s => s >= amps) || 32;
 };
 
-export default function SolarInverterMatcherV3_5() {
+export default function SolarInverterMatcherV3_6() {
   const [brands, setBrands] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState('');
   const [filteredInverters, setFilteredInverters] = useState([]);
@@ -104,16 +101,30 @@ export default function SolarInverterMatcherV3_5() {
     const tempDiff = minTemp - 25;
     const vocCorrectionFactor = 1 + (tempDiff * (selectedPanel.tempCoeff / 100));
     const maxVocPerPanel = selectedPanel.voc * vocCorrectionFactor;
-    const maxPanelsPossible = Math.floor(selectedInv.maxDcV / maxVocPerPanel);
+    
+    // --- UPDATED LOGIC FOR MAX PANELS (VOLTAGE & POWER) ---
+    // 1. Limit by Voltage (Voc)
+    const limitByVoltage = Math.floor(selectedInv.maxDcV / maxVocPerPanel);
+    
+    // 2. Limit by Power (Max PV Input)
+    // Formula: (Max DC kW * 1000) / Panel Watt / Active Strings
+    const totalMaxPowerWatt = selectedInv.maxDcKw * 1000;
+    const totalPanelsByPower = Math.floor(totalMaxPowerWatt / selectedPanel.pmax);
+    // Avoid division by zero
+    const safeActiveStrings = activeStrings > 0 ? activeStrings : 1;
+    const limitByPowerPerString = Math.floor(totalPanelsByPower / safeActiveStrings);
+    
+    // Final Result: Choose the LOWER number (The constraint that is hit first)
+    const maxPanelsPossible = Math.min(limitByVoltage, limitByPowerPerString);
+
     const minPanelsPossible = Math.ceil(selectedInv.startV / selectedPanel.vmp);
     const currentStringVoc = maxVocPerPanel * panelsPerString;
     const currentStringVmp = selectedPanel.vmp * panelsPerString;
     const totalPower = panelsPerString * activeStrings * selectedPanel.pmax;
 
-    // Safety Checks (UPDATED V3.5)
+    // Safety Checks
     const isVoltageSafe = currentStringVoc <= selectedInv.maxDcV;
     const isStartUp = currentStringVmp >= selectedInv.startV;
-    // Check against Max PV Input (maxDcKw) NOT Rated AC (ratedAcKw)
     const isPowerSafe = (totalPower / 1000) <= selectedInv.maxDcKw; 
     const isCurrentSafe = selectedPanel.isc <= selectedInv.maxIsc;
 
@@ -142,8 +153,7 @@ export default function SolarInverterMatcherV3_5() {
     const qtyDcBreaker = activeStrings * 1;
     const qtyDcSpd = activeStrings * 1;
 
-    // --- AC Protection (UPDATED V3.5) ---
-    // Calculate based on Rated AC Power (ratedAcKw)
+    // --- AC Protection ---
     const acPowerWatt = selectedInv.ratedAcKw * 1000; 
     let acCurrent = 0;
     if (selectedInv.phase === 1) {
@@ -185,7 +195,7 @@ export default function SolarInverterMatcherV3_5() {
         
         {/* HEADER */}
         <div className="bg-[#1e293b] p-6 text-white flex justify-between items-center">
-            <div><h1 className="text-2xl font-bold">UD Solarmax Inverter Tool V3.5</h1><p className="text-gray-400 text-sm">Separated AC/DC Power Limits</p></div>
+            <div><h1 className="text-2xl font-bold">UD Solarmax Inverter Tool V3.6</h1><p className="text-gray-400 text-sm">Logic Fixed: Max Panels by Voltage & Power</p></div>
             <div className="text-right"><div className="text-xs text-green-400">Database Ready</div></div>
         </div>
 
