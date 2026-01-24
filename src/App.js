@@ -89,7 +89,9 @@ const DB_PANELS = [
   { id: 'trina_685', brand: 'Trina', model: 'Vertex TSM-NEGG21C.20 685W', pmax: 685, voc: 47.70, vmp: 39.80, isc: 18.21, tempCoeff: -0.30 },
   { id: 'trina_720', brand: 'Trina', model: 'Vertex TSM-NEGG21C.20 720W', pmax: 720, voc: 49.40, vmp: 41.30, isc: 18.49, tempCoeff: -0.29 },
   { id: 'trina_725', brand: 'Trina', model: 'Vertex TSM-NEGG21C.20 725W', pmax: 725, voc: 49.60, vmp: 41.50, isc: 18.54, tempCoeff: -0.29 }, 
-  { id: 'ja_550', brand: 'JA Solar', model: 'DeepBlue 3.0 550W', pmax: 550, voc: 49.90, vmp: 41.80, isc: 14.00, tempCoeff: -0.27 }, 
+  { id: 'ja_550', brand: 'JA Solar', model: 'DeepBlue 3.0 550W', pmax: 550, voc: 49.90, vmp: 41.80, isc: 14.00, tempCoeff: -0.27 },
+  { id: 'jinko_560', brand: 'Jinko Solar', model: 'Tiger Neo JKM560N-72HL4-BDV 560W', pmax: 560, voc: 50.67, vmp: 41.95, isc: 14.13, tempCoeff: -0.30 }, 
+  { id: 'jinko_590', brand: 'Jinko Solar', model: 'Tiger Neo JKM590N-78HL4-BDV 590W', pmax: 590, voc: 54.76, vmp: 44.91, isc: 13.71, tempCoeff: -0.30 },   
 ];
 
 const getStandardBreaker = (amps) => {
