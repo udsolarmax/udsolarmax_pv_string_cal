@@ -77,7 +77,7 @@ const DB_PANELS = [
   { id: 'longi_570', brand: 'Longi', model: 'LR5-72HTH-570M 570W', pmax: 570, voc: 51.91, vmp: 43.76, isc: 14.07, tempCoeff: -0.27 },
   { id: 'longi_575', brand: 'Longi', model: 'LR5-72HTH-575M 575W', pmax: 575, voc: 52.06, vmp: 43.91, isc: 14.14, tempCoeff: -0.27 },
   { id: 'longi_580', brand: 'Longi', model: 'LR5-72HTH-580M 580W', pmax: 580, voc: 52.21, vmp: 44.06, isc: 14.20, tempCoeff: -0.27 },
-  { id: 'longi_580_hgd', brand: 'Longi', model: 'LR5-72HGD-580M 580W', pmax: 580, voc: 51.41, vmp: 43.22, isc: 14.22, tempCoeff: -0.27 },
+  { id: 'longi_580', brand: 'Longi', model: 'LR5-72HGD-580M 580W', pmax: 580, voc: 51.41, vmp: 43.22, isc: 14.22, tempCoeff: -0.27 },
   { id: 'longi_585', brand: 'Longi', model: 'LR5-72HTH-585M 585W', pmax: 585, voc: 52.36, vmp: 49.16, isc: 14.27, tempCoeff: -0.27 },  
   { id: 'longi_620', brand: 'Longi', model: 'LR7-72HTH-620M 620W', pmax: 620, voc: 52.72, vmp: 44.48, isc: 14.93, tempCoeff: -0.27 },
   { id: 'longi_630', brand: 'Longi', model: 'LR5-78HGD-630M 630W', pmax: 630, voc: 57.23, vmp: 47.99, isc: 13.91, tempCoeff: -0.27 },
@@ -85,7 +85,11 @@ const DB_PANELS = [
   { id: 'longi_645', brand: 'Longi', model: 'LR7-72HVH-645M 645W', pmax: 645, voc: 53.80, vmp: 44.46, isc: 15.21, tempCoeff: -0.27 }, 
   { id: 'talesun_550', brand: 'Talesun', model: 'TD7g72M(H)-550 550W', pmax: 550, voc: 40.80, vmp: 41.60, isc: 13.99, tempCoeff: -0.34 },
   { id: 'trina_550', brand: 'Trina', model: 'Vertex 550W', pmax: 550, voc: 38.40, vmp: 31.60, isc: 18.18, tempCoeff: -0.34 },
-  { id: 'ja_550', brand: 'JA Solar', model: 'DeepBlue 3.0 550W', pmax: 550, voc: 49.90, vmp: 41.80, isc: 14.00, tempCoeff: -0.27 },
+  { id: 'trina_680', brand: 'Trina', model: 'Vertex TSM-NEGG21C.20 680W', pmax: 680, voc: 47.40, vmp: 39.60, isc: 18.18, tempCoeff: -0.30 },
+  { id: 'trina_685', brand: 'Trina', model: 'Vertex TSM-NEGG21C.20 685W', pmax: 685, voc: 47.70, vmp: 39.80, isc: 18.21, tempCoeff: -0.30 },
+  { id: 'trina_720', brand: 'Trina', model: 'Vertex TSM-NEGG21C.20 720W', pmax: 720, voc: 49.40, vmp: 41.30, isc: 18.49, tempCoeff: -0.29 },
+  { id: 'trina_725', brand: 'Trina', model: 'Vertex TSM-NEGG21C.20 725W', pmax: 725, voc: 49.60, vmp: 41.50, isc: 18.54, tempCoeff: -0.29 }, 
+  { id: 'ja_550', brand: 'JA Solar', model: 'DeepBlue 3.0 550W', pmax: 550, voc: 49.90, vmp: 41.80, isc: 14.00, tempCoeff: -0.27 }, 
 ];
 
 const getStandardBreaker = (amps) => {
