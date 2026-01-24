@@ -8,8 +8,8 @@ const DB_INVERTERS = [
   // --- HUAWEI (Grid-Tied) ---
   { id: 'huawei_3k_l1', brand: 'Huawei', model: 'SUN2000-3KTL-L1', maxDcV: 600, startV: 100, mpptCount: 1, maxStrings: 2, ratedAcKw: 3.0, maxDcKw: 4.5, maxIsc: 20, phase: 1 },
   { id: 'huawei_5k_l1', brand: 'Huawei', model: 'SUN2000-5KTL-L1', maxDcV: 600, startV: 100, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 7.5, maxIsc: 20, phase: 1 },
-  { id: 'huawei_8k_lc0', brand: 'Huawei', model: 'SUN2000-8KTL-lc0', maxDcV: 600, startV: 100, mpptCount: 3, maxStrings: 3, ratedAcKw: 8.0, maxDcKw: 12.0, maxIsc: 20, phase: 1 }, 
-  { id: 'huawei_10k_lc0', brand: 'Huawei', model: 'SUN2000-10KTL-lc0', maxDcV: 600, startV: 100, mpptCount: 3, maxStrings: 3, ratedAcKw: 10.0, maxDcKw: 15.0, maxIsc: 20, phase: 1 }, 
+  { id: 'huawei_8k_lc0', brand: 'Huawei', model: 'SUN2000-8KTL-LC0', maxDcV: 600, startV: 100, mpptCount: 3, maxStrings: 3, ratedAcKw: 8.0, maxDcKw: 12.0, maxIsc: 20, phase: 1 }, 
+  { id: 'huawei_10k_lc0', brand: 'Huawei', model: 'SUN2000-10KTL-LC0', maxDcV: 600, startV: 100, mpptCount: 3, maxStrings: 3, ratedAcKw: 10.0, maxDcKw: 15.0, maxIsc: 20, phase: 1 }, 
   
   // Huawei M1 (3 Phase)
   { id: 'huawei_3k_m1', brand: 'Huawei', model: 'SUN2000-3KTL-M1', maxDcV: 1100, startV: 200, mpptCount: 2, maxStrings: 2, ratedAcKw: 3.0, maxDcKw: 4.5, maxIsc: 19.5, phase: 3 },
@@ -18,7 +18,7 @@ const DB_INVERTERS = [
   { id: 'huawei_8k_m1', brand: 'Huawei', model: 'SUN2000-8KTL-M1', maxDcV: 1100, startV: 200, mpptCount: 2, maxStrings: 2, ratedAcKw: 8.0, maxDcKw: 12.0, maxIsc: 19.5, phase: 3 },
   { id: 'huawei_10k_m1', brand: 'Huawei', model: 'SUN2000-10KTL-M1', maxDcV: 1100, startV: 200, mpptCount: 2, maxStrings: 2, ratedAcKw: 10.0, maxDcKw: 15.0, maxIsc: 19.5, phase: 3 },
   
-  // Huawei MAP0 (3 Phase Hybrid)
+  // Huawei MAP0 (3 Phase Unbalance)
   { id: 'huawei_5k_map0', brand: 'Huawei', model: 'SUN2000-5KTL-MAP0', maxDcV: 1100, startV: 160, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 7.5, maxIsc: 22, phase: 3 },
   { id: 'huawei_6k_map0', brand: 'Huawei', model: 'SUN2000-6KTL-MAP0', maxDcV: 1100, startV: 160, mpptCount: 2, maxStrings: 2, ratedAcKw: 6.0, maxDcKw: 9.0, maxIsc: 22, phase: 3 },
   { id: 'huawei_8k_map0', brand: 'Huawei', model: 'SUN2000-8KTL-MAP0', maxDcV: 1100, startV: 160, mpptCount: 2, maxStrings: 2, ratedAcKw: 8.0, maxDcKw: 12.0, maxIsc: 22, phase: 3 },
@@ -27,21 +27,46 @@ const DB_INVERTERS = [
   
   // --- DEYE ---
   { id: 'deye_5k_sg03', brand: 'Deye', model: 'SUN-5K-SG03LP1-EU (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 6.5, maxIsc: 13, phase: 1 },
-  { id: 'deye_5k_sg04', brand: 'Deye', model: 'SUN-5K-SG04LP1-EU-SM2 (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 7.5, maxIsc: 27, phase: 1 },
-  { id: 'deye_8k_sg01', brand: 'Deye', model: 'SUN-8K-SG01LP1-EU (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 2, ratedAcKw: 8.0, maxDcKw: 10.4, maxIsc: 26, phase: 1 },
-  { id: 'deye_12k_sg04', brand: 'Deye', model: 'SUN-12K-SG04LP3-EU (3P Hybrid)', maxDcV: 800, startV: 160, mpptCount: 2, maxStrings: 2, ratedAcKw: 12.0, maxDcKw: 15.6, maxIsc: 34, phase: 3 },
+  { id: 'deye_5k_sg04', brand: 'Deye', model: 'SUN-5K-SG04LP1-EU-SM2 (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 2, ratedAcKw: 8.0, maxDcKw: 10.0, maxIsc: 27, phase: 1 },
+  { id: 'deye_5k_sg05', brand: 'Deye', model: 'SUN-5K-SG05LP1-EU (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 2, ratedAcKw: 8.0, maxDcKw: 10.0, maxIsc: 17, phase: 1 },
+  { id: 'deye_6k_sg04', brand: 'Deye', model: 'SUN-6K-SG04LP1-EU-SM2 (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 2, ratedAcKw: 9.6, maxDcKw: 12.0, maxIsc: 27, phase: 1 },
+  { id: 'deye_8k_sg05', brand: 'Deye', model: 'SUN-8K-SG05LP1-EU (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 4, ratedAcKw: 12.8, maxDcKw: 16.0, maxIsc: 34, phase: 1 },
+  { id: 'deye_8k_sg01', brand: 'Deye', model: 'SUN-8K-SG01LP1-EU (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 4, ratedAcKw: 8.0, maxDcKw: 10.4, maxIsc: 26, phase: 1 },
+  { id: 'deye_8k_sg05', brand: 'Deye', model: 'SUN-8K-SG05LP1-EU-SM2-P (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 4, ratedAcKw: 12.8, maxDcKw: 16.0, maxIsc: 24, phase: 1 },
+  { id: 'deye_8k_sg05', brand: 'Deye', model: 'SUN-10K-SG05LP1-EU-SM2-P (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 4, ratedAcKw: 16.0, maxDcKw: 20.0, maxIsc: 24, phase: 1 },
+  { id: 'deye_8k_sg05', brand: 'Deye', model: 'SUN-10K-SG04LP3-EU (3P Hybrid)', maxDcV: 800, startV: 160, mpptCount: 2, maxStrings: 3, ratedAcKw: 12.0, maxDcKw: 16.0, maxIsc: 17, phase: 3 },
+  { id: 'deye_10k_sg04', brand: 'Deye', model: 'SUN-10K-SG04LP3-EU (3P Hybrid)', maxDcV: 800, startV: 160, mpptCount: 2, maxStrings: 3, ratedAcKw: 15.0, maxDcKw: 20.0, maxIsc: 17, phase: 3 },
+  { id: 'deye_10k_sg05', brand: 'Deye', model: 'SUN-10K-SG05LP3-EU-SM2 (3P Hybrid)', maxDcV: 800, startV: 160, mpptCount: 2, maxStrings: 4, ratedAcKw: 16.0, maxDcKw: 20.0, maxIsc: 18, phase: 3 },
+  { id: 'deye_12k_sg04', brand: 'Deye', model: 'SUN-12K-SG04LP3-EU (3P Hybrid)', maxDcV: 800, startV: 160, mpptCount: 2, maxStrings: 3, ratedAcKw: 24.0, maxDcKw: 18.0, maxIsc: 17, phase: 3 },
+  { id: 'deye_12k_sg05', brand: 'Deye', model: 'SUN-12K-SG05LP1-EU (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 4, ratedAcKw: 16.0, maxDcKw: 20.0, maxIsc: 17, phase: 1 },
 
   // --- SOLIS ---
   { id: 'solis_grid_3k', brand: 'Solis', model: 'S6-GR1P3K (Grid)', maxDcV: 600, startV: 90, mpptCount: 1, maxStrings: 1, ratedAcKw: 3.0, maxDcKw: 4.5, maxIsc: 14, phase: 1 },
   { id: 'solis_grid_5k', brand: 'Solis', model: 'S6-GR1P5K (Grid)', maxDcV: 600, startV: 120, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 7.5, maxIsc: 14, phase: 1 },
   { id: 'solis_grid_10k', brand: 'Solis', model: 'S5-GR3P10K (3P Grid)', maxDcV: 1100, startV: 180, mpptCount: 2, maxStrings: 2, ratedAcKw: 10.0, maxDcKw: 15.0, maxIsc: 16, phase: 3 },
   { id: 'solis_hyb_5k', brand: 'Solis', model: 'S6-EH1P5K-L-EU (Hybrid)', maxDcV: 600, startV: 90, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 8.0, maxIsc: 16, phase: 1 },
-  { id: 'solis_hyb_6k', brand: 'Solis', model: 'S6-EH1P6K-L-EU (Hybrid)', maxDcV: 600, startV: 90, mpptCount: 2, maxStrings: 2, ratedAcKw: 6.0, maxDcKw: 9.6, maxIsc: 16, phase: 1 },
+  { id: 'solis_hyb_6k', brand: 'Solis', model: 'S6-EH1P6K-L-EU (Hybrid)', maxDcV: 600, startV: 90, mpptCount: 2, maxStrings: 2, ratedAcKw: 6.0, maxDcKw: 12.0, maxIsc: 24, phase: 1 },
+  { id: 'solis_hyb_6k', brand: 'Solis', model: 'S6-EH1P6K-L-PLUS (Hybrid)', maxDcV: 600, startV: 90, mpptCount: 2, maxStrings: 2, ratedAcKw: 6.0, maxDcKw: 12.0, maxIsc: 20, phase: 1 },
+  { id: 'solis_hyb_8k', brand: 'Solis', model: 'S6-EH1P8K-L-PLUS (Hybrid)', maxDcV: 600, startV: 90, mpptCount: 2, maxStrings: 4, ratedAcKw: 8.0, maxDcKw: 16.0, maxIsc: 20, phase: 1 },
+  { id: 'solis_hyb_10k', brand: 'Solis', model: 'S6-EH1P10K-L-PLUS (Hybrid)', maxDcV: 600, startV: 90, mpptCount: 2, maxStrings: 4, ratedAcKw: 10.0, maxDcKw: 20.0, maxIsc: 24, phase: 1 },
+  { id: 'solis_hyb_10k', brand: 'Solis', model: 'S6-EH3P10K02-NV-YD-L (3P Hybrid)', maxDcV: 1000, startV: 160, mpptCount: 2, maxStrings: 3, ratedAcKw: 10.0, maxDcKw: 20.0, maxIsc: 20, phase: 3 },
+  { id: 'solis_hyb_15k', brand: 'Solis', model: 'S6-EH3P15K02-NV-YD-L (3P Hybrid)', maxDcV: 1000, startV: 160, mpptCount: 2, maxStrings: 4, ratedAcKw: 10.0, maxDcKw: 30.0, maxIsc: 20, phase: 3 },  
+  { id: 'solis_hyb_18k', brand: 'Solis', model: 'S6-EH3P18K02-NV-YD-L (3P Hybrid)', maxDcV: 1000, startV: 160, mpptCount: 2, maxStrings: 3, ratedAcKw: 10.0, maxDcKw: 36.0, maxIsc: 21, phase: 3 },  
   { id: 'solis_hyb_10k', brand: 'Solis', model: 'RHI-3P10K-HVES-5G (3P Hybrid)', maxDcV: 1000, startV: 160, mpptCount: 2, maxStrings: 4, ratedAcKw: 10.0, maxDcKw: 16.0, maxIsc: 26, phase: 3 },
+  { id: 'solis_hyb_50k', brand: 'Solis', model: 'S6-EH3P50K-H (3P Hybrid)', maxDcV: 1000, startV: 180, mpptCount: 4, maxStrings: 8, ratedAcKw: 50.0, maxDcKw: 100.0, maxIsc: 20, phase: 3 },
+  { id: 'solis_hyb_60k', brand: 'Solis', model: 'S6-EH3P60K-H (3P Hybrid)', maxDcV: 1000, startV: 180, mpptCount: 4, maxStrings: 8, ratedAcKw: 60.0, maxDcKw: 100.0, maxIsc: 20, phase: 3 },   
 
   // --- LUXPOWER ---
-  { id: 'lux_sna_5k', brand: 'Luxpower', model: 'SNA 5000 WPV (Off/Hybrid)', maxDcV: 480, startV: 100, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 6.4, maxIsc: 13, phase: 1 },
-  { id: 'lux_lxp_5k', brand: 'Luxpower', model: 'LXP 5K Hybrid', maxDcV: 550, startV: 100, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 8.0, maxIsc: 12.5, phase: 1 },
+  { id: 'lux_sna_3k', brand: 'Luxpower', model: 'SNA 3000 WPV (Off/Hybrid)', maxDcV: 500, startV: 100, mpptCount: 2, maxStrings: 2, ratedAcKw: 3.0, maxDcKw: 6.0, maxIsc: 25, phase: 1 },
+  { id: 'lux_sna_4k', brand: 'Luxpower', model: 'SNA 4000 WPV (Off/Hybrid)', maxDcV: 500, startV: 100, mpptCount: 2, maxStrings: 2, ratedAcKw: 4.0, maxDcKw: 8.0, maxIsc: 25, phase: 1 },
+  { id: 'lux_sna_5k', brand: 'Luxpower', model: 'SNA 5000 WPV (Off/Hybrid)', maxDcV: 500, startV: 100, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 8.0, maxIsc: 25, phase: 1 },
+  { id: 'lux_sna_6k', brand: 'Luxpower', model: 'SNA 6000 WPV (Off/Hybrid)', maxDcV: 500, startV: 100, mpptCount: 2, maxStrings: 2, ratedAcKw: 6.0, maxDcKw: 9.6, maxIsc: 25, phase: 1 },
+  { id: 'lux_lxp_3k', brand: 'Luxpower', model: 'LXP3000W Hybrid', maxDcV: 550, startV: 140, mpptCount: 2, maxStrings: 2, ratedAcKw: 3.0, maxDcKw: 6.6, maxIsc: 20, phase: 1 },
+  { id: 'lux_lxp_3.6k', brand: 'Luxpower', model: 'LXP3600W Hybrid', maxDcV: 550, startV: 140, mpptCount: 2, maxStrings: 2, ratedAcKw: 3.6, maxDcKw: 7.0, maxIsc: 20, phase: 1 }, 
+  { id: 'lux_lxp_4k', brand: 'Luxpower', model: 'LXP4000W Hybrid', maxDcV: 550, startV: 140, mpptCount: 2, maxStrings: 2, ratedAcKw: 4.0, maxDcKw: 7.0, maxIsc: 20, phase: 1 }, 
+  { id: 'lux_lxp_4.6k', brand: 'Luxpower', model: 'LXP4600W Hybrid', maxDcV: 550, startV: 140, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 8.0, maxIsc: 20, phase: 1 },
+  { id: 'lux_lxp_5k', brand: 'Luxpower', model: 'LXP5000W Hybrid', maxDcV: 550, startV: 140, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 8.0, maxIsc: 20, phase: 1 },
+  { id: 'lux_lxp_12k', brand: 'Luxpower', model: 'LXP-LB-EU 12K Hybrid', maxDcV: 600, startV: 140, mpptCount: 3, maxStrings: 4, ratedAcKw: 12.0, maxDcKw: 18.0, maxIsc: 19, phase: 1 },
 ];
 
 const DB_PANELS = [
