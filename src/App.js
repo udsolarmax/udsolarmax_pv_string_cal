@@ -162,10 +162,21 @@ export default function SolarInverterMatcherV3_7() {
 
     // Protection Devices (BoS)
     const dcFuseRating = getStandardFuse(selectedPanel.isc * 1.5);
-    const reqDcVoltage = currentStringVoc * 1.25;
-    let dcBreakerVoltageModel = "1000Vdc"; 
-    if (reqDcVoltage <= 550) dcBreakerVoltageModel = "550Vdc";
-    else if (reqDcVoltage <= 800) dcBreakerVoltageModel = "800Vdc";
+    const reqDcVoltage = currentStringVoc * 1.0;
+    let dcBreakerVoltageModel;
+    if (currentStringVoc > 1185) {
+      dcBreakerVoltageModel = "1200Vdc";
+    } else if (currentStringVoc > 985) {
+        dcBreakerVoltageModel = "1000Vdc";
+    } else if (currentStringVoc > 785) {
+        dcBreakerVoltageModel = "800Vdc";
+    } else if (currentStringVoc > 585) {
+        dcBreakerVoltageModel = "600Vdc";
+    } else if (currentStringVoc > 525) {
+        dcBreakerVoltageModel = "550Vdc";
+    } else {
+        dcBreakerVoltageModel = "550Vdc";
+    }
     
     const dcBreakerRating = getStandardBreaker(selectedPanel.isc * 1.25); 
     
