@@ -162,11 +162,25 @@ export default function SolarInverterMatcherV3_7() {
 
     // Protection Devices (BoS)
     const dcFuseRating = getStandardFuse(selectedPanel.isc * 1.5);
-    const reqDcVoltage = currentStringVoc * 1.25;
-    let dcBreakerVoltageModel = "1000Vdc"; 
-    if (reqDcVoltage <= 550) dcBreakerVoltageModel = "550Vdc";
-    else if (reqDcVoltage <= 800) dcBreakerVoltageModel = "800Vdc";
     
+    // --- แก้ไข Logic DC Breaker ตามเงื่อนไข Voc ที่กำหนด ---
+    let dcBreakerVoltageModel;
+
+    if (currentStringVoc > 1185) {
+        dcBreakerVoltageModel = "1200Vdc";
+    } else if (currentStringVoc > 985) {
+        dcBreakerVoltageModel = "1000Vdc";
+    } else if (currentStringVoc > 785) {
+        dcBreakerVoltageModel = "800Vdc";
+    } else if (currentStringVoc > 585) {
+        dcBreakerVoltageModel = "600Vdc";
+    } else if (currentStringVoc > 525) {
+        dcBreakerVoltageModel = "550Vdc";
+    } else {
+        // กรณี Voc ต่ำกว่าหรือเท่ากับ 525 ให้เลือกค่าเริ่มต้น (เช่น 550Vdc)
+        dcBreakerVoltageModel = "550Vdc";
+    }
+   // -----------------------------------------------------
     const dcBreakerRating = getStandardBreaker(selectedPanel.isc * 1.25); 
     
     let dcSpdSpec = "1000Vdc 3P"; 
