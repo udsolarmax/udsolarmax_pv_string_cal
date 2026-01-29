@@ -180,15 +180,19 @@ export default function SolarInverterMatcherV3_7() {
     
     const dcBreakerRating = getStandardBreaker(selectedPanel.isc * 1.25); 
     
-    let dcSpdSpec = "1000Vdc 3P"; 
-    if (reqDcVoltage <= 600) {
-        dcSpdSpec = "600Vdc 2P";
-    } else if (reqDcVoltage <= 800) {
-        dcSpdSpec = "800Vdc 2P";
-    } else {
+    let dcSpdSpec; 
+    if (reqDcVoltage > 1185) {
+        dcSpdSpec = "1200Vdc 2P";
+    } else if (reqDcVoltage > 985) {
         dcSpdSpec = "1000Vdc 3P";
+    } else if (reqDcVoltage > 785) {
+        dcSpdSpec = "800Vdc 2P";
+    } else if (reqDcVoltage > 585) {
+        dcSpdSpec = "600Vdc 2P";
+        } else {
+        dcSpdSpec = "600Vdc 2P";
     }
-    
+
     const qtyDcFuse = activeStrings * 2;
     const qtyDcBreaker = activeStrings * 1;
     const qtyDcSpd = activeStrings * 1;
