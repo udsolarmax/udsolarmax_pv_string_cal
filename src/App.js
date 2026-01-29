@@ -167,16 +167,22 @@ export default function SolarInverterMatcherV3_7() {
     if (reqDcVoltage <= 550) dcBreakerVoltageModel = "550Vdc";
     else if (reqDcVoltage <= 800) dcBreakerVoltageModel = "800Vdc";
     
-    const dcBreakerRating = getStandardBreaker(selectedPanel.isc * 1.25); 
+    const dcBreakerRating = getStandardBreaker(selectedPanel.isc * 1); 
     
-    let dcSpdSpec = "1000Vdc 3P"; 
-    if (reqDcVoltage <= 600) {
-        dcSpdSpec = "600Vdc 2P";
-    } else if (reqDcVoltage <= 800) {
-        dcSpdSpec = "800Vdc 2P";
-    } else {
-        dcSpdSpec = "1000Vdc 3P";
-    }
+    let dcBreakerVoltageModel;
+  if (currentStringVoc > 1185) {
+      dcBreakerVoltageModel = "1200Vdc";
+  } else if (currentStringVoc > 985) {
+      dcBreakerVoltageModel = "1000Vdc";
+  } else if (currentStringVoc > 785) {
+      dcBreakerVoltageModel = "800Vdc";
+  } else if (currentStringVoc > 585) {
+      dcBreakerVoltageModel = "600Vdc";
+  } else if (currentStringVoc > 525) {
+      dcBreakerVoltageModel = "550Vdc";
+  } else {
+      dcBreakerVoltageModel = "550Vdc";
+  }
     
     const qtyDcFuse = activeStrings * 2;
     const qtyDcBreaker = activeStrings * 1;
