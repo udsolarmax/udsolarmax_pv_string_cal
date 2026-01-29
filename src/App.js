@@ -176,11 +176,9 @@ export default function SolarInverterMatcherV3_7() {
         dcBreakerVoltageModel = "600Vdc";
     } else if (currentStringVoc > 525) {
         dcBreakerVoltageModel = "550Vdc";
-    } else {
-        // กรณี Voc ต่ำกว่าหรือเท่ากับ 525 ให้เลือกค่าเริ่มต้น (เช่น 550Vdc)
-        dcBreakerVoltageModel = "550Vdc";
-    }
-   // -----------------------------------------------------
+    } else {dcBreakerVoltageModel = "550Vdc";
+    {
+ 
     const dcBreakerRating = getStandardBreaker(selectedPanel.isc * 1.25); 
     
     let dcSpdSpec = "1000Vdc 3P"; 
