@@ -21,7 +21,7 @@ const DB_INVERTERS_RAW = [
   { id: 'huawei_10k_m1', brand: 'Huawei', model: 'SUN2000-10KTL-M1', maxDcV: 1100, startV: 200, mpptCount: 2, maxStrings: 2, ratedAcKw: 10.0, maxDcKw: 15.0, maxIsc: 19.5, phase: 3 },
 
   // Huawei M5 (3 Phase)
-  { id: 'huawei_20k_m5', brand: 'Huawei', model: 'SUN2000-20KTL-M5', maxDcV: 1100, startV: 200, mpptCount: 2, maxStrings: 4, ratedAcKw: 20.0, maxDcKw: 30.0, maxIsc: 20, phase: 3 },
+  { id: 'huawei_20k_m5', brand: 'Huawei', model: 'SUN2000-20KTL-M5', maxDcV: 1100, startV: 200, mpptCount: 2, maxStrings: 4, ratedAcKw: 20.0, maxDcKw: 30.0, maxIsc: 20, maxIsc_1str: 20, maxIsc_2str: 30, phase: 3 },
 
   // Huawei MAP0 (3 Phase Unbalance)
   { id: 'huawei_5k_map0', brand: 'Huawei', model: 'SUN2000-5KTL-MAP0', maxDcV: 1100, startV: 160, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 7.5, maxIsc: 22, phase: 3 },
