@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
 // ==========================================
-// 1. DATABASE: ฐานข้อมูลอุปกรณ์
+// 1. DATABASE: ฐานข้อมูลอุปกรณ์ (Updated V3.8)
 // ==========================================
 
-const DB_INVERTERS = [
+// หมายเหตุ: ผมใส่ค่า Default maxIsc_1str = 20A และ maxIsc_2str = 30A ให้กับทุกรุ่น
+// เพื่อให้ Logic ทำงานได้ทันที คุณสามารถมาแก้ตัวเลขเฉพาะรุ่นทีหลังได้ครับ
+const DB_INVERTERS_RAW = [
   // --- HUAWEI (Grid-Tied) ---
   { id: 'huawei_3k_l1', brand: 'Huawei', model: 'SUN2000-3KTL-L1', maxDcV: 600, startV: 100, mpptCount: 1, maxStrings: 2, ratedAcKw: 3.0, maxDcKw: 4.5, maxIsc: 20, phase: 1 },
   { id: 'huawei_5k_l1', brand: 'Huawei', model: 'SUN2000-5KTL-L1', maxDcV: 600, startV: 100, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 7.5, maxIsc: 20, phase: 1 },
@@ -35,9 +37,8 @@ const DB_INVERTERS = [
   { id: 'deye_6k_sg04', brand: 'Deye', model: 'SUN-6K-SG04LP1-EU-SM2 (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 2, ratedAcKw: 9.6, maxDcKw: 12.0, maxIsc: 27, phase: 1 },
   { id: 'deye_8k_sg05', brand: 'Deye', model: 'SUN-8K-SG05LP1-EU (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 4, ratedAcKw: 12.8, maxDcKw: 16.0, maxIsc: 34, phase: 1 },
   { id: 'deye_8k_sg01', brand: 'Deye', model: 'SUN-8K-SG01LP1-EU (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 4, ratedAcKw: 8.0, maxDcKw: 10.4, maxIsc: 26, phase: 1 },
-  { id: 'deye_8k_sg05', brand: 'Deye', model: 'SUN-8K-SG05LP1-EU-SM2-P (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 4, ratedAcKw: 12.8, maxDcKw: 16.0, maxIsc: 24, phase: 1 },
-  { id: 'deye_8k_sg05', brand: 'Deye', model: 'SUN-8K-SG05LP1-EU-SM2-P (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 4, ratedAcKw: 16.0, maxDcKw: 20.0, maxIsc: 24, phase: 1 },
-  { id: 'deye_8k_sg04', brand: 'Deye', model: 'SUN-8K-SG04LP3-EU (3P Hybrid)', maxDcV: 800, startV: 160, mpptCount: 2, maxStrings: 3, ratedAcKw: 12.0, maxDcKw: 16.0, maxIsc: 17, phase: 3 },
+  { id: 'deye_8k_sg05_p', brand: 'Deye', model: 'SUN-8K-SG05LP1-EU-SM2-P (Hybrid)', maxDcV: 500, startV: 125, mpptCount: 2, maxStrings: 4, ratedAcKw: 12.8, maxDcKw: 16.0, maxIsc: 24, phase: 1 },
+  { id: 'deye_8k_sg04_3p', brand: 'Deye', model: 'SUN-8K-SG04LP3-EU (3P Hybrid)', maxDcV: 800, startV: 160, mpptCount: 2, maxStrings: 3, ratedAcKw: 12.0, maxDcKw: 16.0, maxIsc: 17, phase: 3 },
   { id: 'deye_10k_sg04', brand: 'Deye', model: 'SUN-10K-SG04LP3-EU (3P Hybrid)', maxDcV: 800, startV: 160, mpptCount: 2, maxStrings: 3, ratedAcKw: 15.0, maxDcKw: 20.0, maxIsc: 17, phase: 3 },
   { id: 'deye_10k_sg05', brand: 'Deye', model: 'SUN-10K-SG05LP3-EU-SM2 (3P Hybrid)', maxDcV: 800, startV: 160, mpptCount: 2, maxStrings: 4, ratedAcKw: 16.0, maxDcKw: 20.0, maxIsc: 18, phase: 3 },
   { id: 'deye_12k_sg04', brand: 'Deye', model: 'SUN-12K-SG04LP3-EU (3P Hybrid)', maxDcV: 800, startV: 160, mpptCount: 2, maxStrings: 3, ratedAcKw: 24.0, maxDcKw: 18.0, maxIsc: 17, phase: 3 },
@@ -49,13 +50,13 @@ const DB_INVERTERS = [
   { id: 'solis_grid_10k', brand: 'Solis', model: 'S5-GR3P10K (3P Grid)', maxDcV: 1100, startV: 180, mpptCount: 2, maxStrings: 2, ratedAcKw: 10.0, maxDcKw: 15.0, maxIsc: 16, phase: 3 },
   { id: 'solis_hyb_5k', brand: 'Solis', model: 'S6-EH1P5K-L-EU (Hybrid)', maxDcV: 600, startV: 90, mpptCount: 2, maxStrings: 2, ratedAcKw: 5.0, maxDcKw: 8.0, maxIsc: 16, phase: 1 },
   { id: 'solis_hyb_6k', brand: 'Solis', model: 'S6-EH1P6K-L-EU (Hybrid)', maxDcV: 600, startV: 90, mpptCount: 2, maxStrings: 2, ratedAcKw: 6.0, maxDcKw: 12.0, maxIsc: 24, phase: 1 },
-  { id: 'solis_hyb_6k', brand: 'Solis', model: 'S6-EH1P6K-L-PLUS (Hybrid)', maxDcV: 600, startV: 90, mpptCount: 2, maxStrings: 2, ratedAcKw: 6.0, maxDcKw: 12.0, maxIsc: 20, phase: 1 },
+  { id: 'solis_hyb_6k_plus', brand: 'Solis', model: 'S6-EH1P6K-L-PLUS (Hybrid)', maxDcV: 600, startV: 90, mpptCount: 2, maxStrings: 2, ratedAcKw: 6.0, maxDcKw: 12.0, maxIsc: 20, phase: 1 },
   { id: 'solis_hyb_8k', brand: 'Solis', model: 'S6-EH1P8K-L-PLUS (Hybrid)', maxDcV: 600, startV: 90, mpptCount: 2, maxStrings: 4, ratedAcKw: 8.0, maxDcKw: 16.0, maxIsc: 20, phase: 1 },
   { id: 'solis_hyb_10k', brand: 'Solis', model: 'S6-EH1P10K-L-PLUS (Hybrid)', maxDcV: 600, startV: 90, mpptCount: 2, maxStrings: 4, ratedAcKw: 10.0, maxDcKw: 20.0, maxIsc: 24, phase: 1 },
-  { id: 'solis_hyb_10k', brand: 'Solis', model: 'S6-EH3P10K02-NV-YD-L (3P Hybrid)', maxDcV: 1000, startV: 160, mpptCount: 2, maxStrings: 3, ratedAcKw: 10.0, maxDcKw: 20.0, maxIsc: 20, phase: 3 },
+  { id: 'solis_hyb_10k_3p', brand: 'Solis', model: 'S6-EH3P10K02-NV-YD-L (3P Hybrid)', maxDcV: 1000, startV: 160, mpptCount: 2, maxStrings: 3, ratedAcKw: 10.0, maxDcKw: 20.0, maxIsc: 20, phase: 3 },
   { id: 'solis_hyb_15k', brand: 'Solis', model: 'S6-EH3P15K02-NV-YD-L (3P Hybrid)', maxDcV: 1000, startV: 160, mpptCount: 2, maxStrings: 4, ratedAcKw: 10.0, maxDcKw: 30.0, maxIsc: 20, phase: 3 },  
   { id: 'solis_hyb_18k', brand: 'Solis', model: 'S6-EH3P18K02-NV-YD-L (3P Hybrid)', maxDcV: 1000, startV: 160, mpptCount: 2, maxStrings: 3, ratedAcKw: 10.0, maxDcKw: 36.0, maxIsc: 21, phase: 3 },  
-  { id: 'solis_hyb_10k', brand: 'Solis', model: 'RHI-3P10K-HVES-5G (3P Hybrid)', maxDcV: 1000, startV: 160, mpptCount: 2, maxStrings: 4, ratedAcKw: 10.0, maxDcKw: 16.0, maxIsc: 26, phase: 3 },
+  { id: 'solis_hyb_10k_hv', brand: 'Solis', model: 'RHI-3P10K-HVES-5G (3P Hybrid)', maxDcV: 1000, startV: 160, mpptCount: 2, maxStrings: 4, ratedAcKw: 10.0, maxDcKw: 16.0, maxIsc: 26, phase: 3 },
   { id: 'solis_hyb_50k', brand: 'Solis', model: 'S6-EH3P50K-H (3P Hybrid)', maxDcV: 1000, startV: 180, mpptCount: 4, maxStrings: 8, ratedAcKw: 50.0, maxDcKw: 100.0, maxIsc: 20, phase: 3 },
   { id: 'solis_hyb_60k', brand: 'Solis', model: 'S6-EH3P60K-H (3P Hybrid)', maxDcV: 1000, startV: 180, mpptCount: 4, maxStrings: 8, ratedAcKw: 60.0, maxDcKw: 100.0, maxIsc: 20, phase: 3 },   
 
@@ -72,6 +73,14 @@ const DB_INVERTERS = [
   { id: 'lux_lxp_12k', brand: 'Luxpower', model: 'LXP-LB-EU 12K Hybrid', maxDcV: 600, startV: 140, mpptCount: 3, maxStrings: 4, ratedAcKw: 12.0, maxDcKw: 18.0, maxIsc: 19, phase: 1 },
 ];
 
+// เพิ่มพารามิเตอร์ใหม่ลงไปใน DB: maxIsc_1str และ maxIsc_2str
+const DB_INVERTERS = DB_INVERTERS_RAW.map(inv => ({
+  ...inv,
+  // หากไม่มีค่าใน DB ให้ใช้ค่า Default: 1 String = 20A, 2 Strings = 30A
+  maxIsc_1str: inv.maxIsc_1str || 20,
+  maxIsc_2str: inv.maxIsc_2str || 30
+}));
+
 const DB_PANELS = [
   { id: 'jinko_545', brand: 'Jinko', model: 'Tiger Neo 545W', pmax: 545, voc: 49.92, vmp: 41.32, isc: 13.55, tempCoeff: -0.29 },
   { id: 'jinko_585', brand: 'Jinko', model: 'Tiger Neo 585W', pmax: 585, voc: 50.87, vmp: 42.14, isc: 14.31, tempCoeff: -0.29 },
@@ -80,7 +89,7 @@ const DB_PANELS = [
   { id: 'longi_570', brand: 'Longi', model: 'LR5-72HTH-570M 570W', pmax: 570, voc: 51.91, vmp: 43.76, isc: 14.07, tempCoeff: -0.27 },
   { id: 'longi_575', brand: 'Longi', model: 'LR5-72HTH-575M 575W', pmax: 575, voc: 52.06, vmp: 43.91, isc: 14.14, tempCoeff: -0.27 },
   { id: 'longi_580', brand: 'Longi', model: 'LR5-72HTH-580M 580W', pmax: 580, voc: 52.21, vmp: 44.06, isc: 14.20, tempCoeff: -0.27 },
-  { id: 'longi_580', brand: 'Longi', model: 'LR5-72HGD-580M 580W', pmax: 580, voc: 51.41, vmp: 43.22, isc: 14.22, tempCoeff: -0.27 },
+  { id: 'longi_580_gd', brand: 'Longi', model: 'LR5-72HGD-580M 580W', pmax: 580, voc: 51.41, vmp: 43.22, isc: 14.22, tempCoeff: -0.27 },
   { id: 'longi_585', brand: 'Longi', model: 'LR5-72HTH-585M 585W', pmax: 585, voc: 52.36, vmp: 49.16, isc: 14.27, tempCoeff: -0.27 },  
   { id: 'longi_620', brand: 'Longi', model: 'LR7-72HTH-620M 620W', pmax: 620, voc: 52.72, vmp: 44.48, isc: 14.93, tempCoeff: -0.27 },
   { id: 'longi_630', brand: 'Longi', model: 'LR5-78HGD-630M 630W', pmax: 630, voc: 57.23, vmp: 47.99, isc: 13.91, tempCoeff: -0.27 },
@@ -109,7 +118,7 @@ const getStandardFuse = (amps) => {
     return standards.find(s => s >= amps) || 32;
 };
 
-export default function SolarInverterMatcherV3_7() {
+export default function SolarInverterMatcherV3_8() {
   const [brands, setBrands] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState('');
   const [filteredInverters, setFilteredInverters] = useState([]);
@@ -133,26 +142,24 @@ export default function SolarInverterMatcherV3_7() {
 
   const calculateResults = () => {
     if (!selectedInv) return null;
-    
+
     // Solar Calc
     const tempDiff = minTemp - 25;
     const vocCorrectionFactor = 1 + (tempDiff * (selectedPanel.tempCoeff / 100));
     const maxVocPerPanel = selectedPanel.voc * vocCorrectionFactor;
-    
-    // --- UPDATED LOGIC V3.7: Total Panels Calculation ---
-    // 1. Limit by Voltage (per string) then multiply by active strings
+
+    // 1. Limit by Voltage
     const limitPerString_Voltage = Math.floor(selectedInv.maxDcV / maxVocPerPanel);
     const limitTotal_Voltage = limitPerString_Voltage * activeStrings;
     
-    // 2. Limit by Power (Total Max PV Input / Panel Watt)
+    // 2. Limit by Power
     const totalMaxPowerWatt = selectedInv.maxDcKw * 1000;
     const limitTotal_Power = Math.floor(totalMaxPowerWatt / selectedPanel.pmax);
     
-    // Final Result: Choose the LOWER number (The Bottleneck)
-    // แสดงจำนวนรวมทั้งหมด ไม่ใช่ต่อสตริง
+    // Result: Bottleneck
     const maxTotalPanelsPossible = Math.min(limitTotal_Voltage, limitTotal_Power);
-
     const minPanelsPossible = Math.ceil(selectedInv.startV / selectedPanel.vmp);
+    
     const currentStringVoc = maxVocPerPanel * panelsPerString;
     const currentStringVmp = selectedPanel.vmp * panelsPerString;
     const totalPower = panelsPerString * activeStrings * selectedPanel.pmax;
@@ -161,14 +168,41 @@ export default function SolarInverterMatcherV3_7() {
     const isVoltageSafe = currentStringVoc <= selectedInv.maxDcV;
     const isStartUp = currentStringVmp >= selectedInv.startV;
     const isPowerSafe = (totalPower / 1000) <= selectedInv.maxDcKw; 
-    const isCurrentSafe = selectedPanel.isc <= selectedInv.maxIsc;
+
+    // --- NEW LOGIC V3.8: Max Input Current Check (1-String vs 2-Strings) ---
+    // คำนวณว่า 1 MPPT รับภาระกี่สตริง
+    const stringsPerMppt = Math.ceil(activeStrings / selectedInv.mpptCount);
+    
+    let isCurrentSafe = true;
+    let currentCheckMsg = "";
+
+    const limitIsc_1str = selectedInv.maxIsc_1str; // e.g. 20A
+    const limitIsc_2str = selectedInv.maxIsc_2str; // e.g. 30A
+
+    if (stringsPerMppt === 1) {
+        // กรณีเข้า 1 สตริงต่อ MPPT
+        isCurrentSafe = selectedPanel.isc <= limitIsc_1str;
+        currentCheckMsg = `1 String/MPPT (${selectedPanel.isc}A ≤ ${limitIsc_1str}A)`;
+    } else if (stringsPerMppt >= 2) {
+        // กรณีเข้า 2 สตริงขึ้นไปต่อ MPPT (คิด case Worst Case คือ 2 สตริง)
+        const totalCurrentOnMppt = selectedPanel.isc * 2; 
+        // เงื่อนไข: 1.รวมกันไม่เกิน 30A และ 2.แต่ละเส้นไม่เกิน 20A
+        const isSumSafe = totalCurrentOnMppt <= limitIsc_2str;
+        const isSingleSafe = selectedPanel.isc <= limitIsc_1str;
+        
+        isCurrentSafe = isSumSafe && isSingleSafe;
+        currentCheckMsg = `2 Strings/MPPT (Total ${totalCurrentOnMppt.toFixed(1)}A ≤ ${limitIsc_2str}A)`;
+    }
+    // -----------------------------------------------------------------------
 
     // Protection Devices (BoS)
     const dcFuseRating = getStandardFuse(selectedPanel.isc * 1.5);
     const reqDcVoltage = currentStringVoc * 1.0;
+    
+    // --- UPDATED LOGIC: DC Breaker Selection (Top-Down Check) ---
     let dcBreakerVoltageModel;
     if (currentStringVoc > 1185) {
-      dcBreakerVoltageModel = "1200Vdc";
+        dcBreakerVoltageModel = "1200Vdc";
     } else if (currentStringVoc > 985) {
         dcBreakerVoltageModel = "1000Vdc";
     } else if (currentStringVoc > 785) {
@@ -180,10 +214,11 @@ export default function SolarInverterMatcherV3_7() {
     } else {
         dcBreakerVoltageModel = "550Vdc";
     }
+    // ------------------------------------------------------------
     
     const dcBreakerRating = getStandardBreaker(selectedPanel.isc * 1.25); 
     
-    let dcSpdSpec; 
+    let dcSpdSpec;
     if (reqDcVoltage > 1185) {
         dcSpdSpec = "1200Vdc 2P";
     } else if (reqDcVoltage > 985) {
@@ -192,7 +227,7 @@ export default function SolarInverterMatcherV3_7() {
         dcSpdSpec = "800Vdc 2P";
     } else if (reqDcVoltage > 585) {
         dcSpdSpec = "600Vdc 2P";
-        } else {
+    } else {
         dcSpdSpec = "600Vdc 2P";
     }
 
@@ -201,10 +236,10 @@ export default function SolarInverterMatcherV3_7() {
     const qtyDcSpd = activeStrings * 1;
 
     // AC Protection
-    const acPowerWatt = selectedInv.ratedAcKw * 1000; 
+    const acPowerWatt = selectedInv.ratedAcKw * 1000;
     let acCurrent = 0;
     if (selectedInv.phase === 1) {
-        acCurrent = (acPowerWatt / 220); 
+        acCurrent = (acPowerWatt / 220);
     } else {
         acCurrent = (acPowerWatt / (380 * 1.732));
     }
@@ -221,7 +256,7 @@ export default function SolarInverterMatcherV3_7() {
 
     return {
       maxVocPerPanel, maxTotalPanelsPossible, minPanelsPossible, currentStringVoc, currentStringVmp, totalPower,
-      isVoltageSafe, isStartUp, isPowerSafe, isCurrentSafe,
+      isVoltageSafe, isStartUp, isPowerSafe, isCurrentSafe, currentCheckMsg,
       dcFuseRating, dcBreakerRating, dcBreakerVoltageModel, dcSpdSpec,
       acCurrent, acBreakerSize, acPoles, acSpdType, acSpdVoltage, rcboSize,
       qtyDcFuse, qtyDcBreaker, qtyDcSpd, qtyAcBreaker, qtyAcSpd, qtyRcbo
@@ -236,7 +271,10 @@ export default function SolarInverterMatcherV3_7() {
         
         {/* HEADER */}
         <div className="bg-[#1e293b] p-6 text-white flex justify-between items-center">
-            <div><h1 className="text-2xl font-bold">UD Solarmax Inverter Tool V3.7</h1><p className="text-gray-400 text-sm">Logic Fixed: Total Max Panels</p></div>
+            <div>
+              <h1 className="text-2xl font-bold">UD Solarmax Inverter Tool V3.8</h1>
+              <p className="text-gray-400 text-sm">Update: DC Breaker & MPPT Current Logic</p>
+            </div>
             <div className="text-right"><div className="text-xs text-green-400">Database Ready</div></div>
         </div>
 
@@ -290,7 +328,7 @@ export default function SolarInverterMatcherV3_7() {
             {result && selectedInv && (
             <div className="lg:col-span-7 flex flex-col space-y-4">
                 
-                {/* 1. MATCHING RESULT (UPDATED V3.7) */}
+                {/* 1. MATCHING RESULT */}
                 <div className="bg-slate-900 text-white rounded-lg p-5 shadow-lg border-l-4 border-yellow-500">
                     <h3 className="text-md font-bold text-yellow-400 mb-4">⚡ ผลลัพธ์: {selectedInv.brand}</h3>
                     <div className="grid grid-cols-2 gap-4">
@@ -309,10 +347,29 @@ export default function SolarInverterMatcherV3_7() {
                 <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
                     <h3 className="text-md font-bold text-gray-800 mb-3 flex items-center gap-2">🛡️ Safety Check</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className={`flex justify-between items-center p-3 rounded ${result.isVoltageSafe ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}><div><div className="font-bold text-xs">แรงดันรวม (Voc)</div><div className="text-[10px]">{result.currentStringVoc.toFixed(0)}V / Max {selectedInv.maxDcV}V</div></div><div className="font-bold">{result.isVoltageSafe ? 'PASS' : 'FAIL'}</div></div>
-                        <div className={`flex justify-between items-center p-3 rounded ${result.isPowerSafe ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}><div><div className="font-bold text-xs">กำลังผลิต (PV Power)</div><div className="text-[10px]">{(result.totalPower/1000).toFixed(1)}kW / Max {selectedInv.maxDcKw}kW</div></div><div className="font-bold">{result.isPowerSafe ? 'PASS' : 'FAIL'}</div></div>
-                        <div className={`flex justify-between items-center p-3 rounded ${result.isCurrentSafe ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}><div><div className="font-bold text-xs">กระแสแผง (Isc)</div><div className="text-[10px]">{selectedPanel.isc}A / Max {selectedInv.maxIsc}A</div></div><div className="font-bold">{result.isCurrentSafe ? 'PASS' : 'FAIL'}</div></div>
-                        <div className={`flex justify-between items-center p-3 rounded ${result.isStartUp ? 'bg-blue-50 text-blue-800 border border-blue-200' : 'bg-yellow-50 text-yellow-800 border border-yellow-200'}`}><div><div className="font-bold text-xs">แรงดันทำงาน (Vmp)</div><div className="text-[10px]">{result.currentStringVmp.toFixed(0)}V / Start {selectedInv.startV}V</div></div><div className="font-bold">{result.isStartUp ? 'OK' : 'LOW'}</div></div>
+                        <div className={`flex justify-between items-center p-3 rounded ${result.isVoltageSafe ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+                          <div><div className="font-bold text-xs">แรงดันรวม (Voc)</div><div className="text-[10px]">{result.currentStringVoc.toFixed(0)}V / Max {selectedInv.maxDcV}V</div></div>
+                          <div className="font-bold">{result.isVoltageSafe ? 'PASS' : 'FAIL'}</div>
+                        </div>
+                        
+                        <div className={`flex justify-between items-center p-3 rounded ${result.isPowerSafe ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+                          <div><div className="font-bold text-xs">กำลังผลิต (PV Power)</div><div className="text-[10px]">{(result.totalPower/1000).toFixed(1)}kW / Max {selectedInv.maxDcKw}kW</div></div>
+                          <div className="font-bold">{result.isPowerSafe ? 'PASS' : 'FAIL'}</div>
+                        </div>
+                        
+                        {/* UPDATE: Current Check Display */}
+                        <div className={`flex justify-between items-center p-3 rounded ${result.isCurrentSafe ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+                          <div>
+                            <div className="font-bold text-xs">กระแส MPPT (Isc)</div>
+                            <div className="text-[10px]">{result.currentCheckMsg}</div>
+                          </div>
+                          <div className="font-bold">{result.isCurrentSafe ? 'PASS' : 'FAIL'}</div>
+                        </div>
+
+                        <div className={`flex justify-between items-center p-3 rounded ${result.isStartUp ? 'bg-blue-50 text-blue-800 border border-blue-200' : 'bg-yellow-50 text-yellow-800 border border-yellow-200'}`}>
+                          <div><div className="font-bold text-xs">แรงดันทำงาน (Vmp)</div><div className="text-[10px]">{result.currentStringVmp.toFixed(0)}V / Start {selectedInv.startV}V</div></div>
+                          <div className="font-bold">{result.isStartUp ? 'OK' : 'LOW'}</div>
+                        </div>
                     </div>
                 </div>
 
