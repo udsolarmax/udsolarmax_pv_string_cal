@@ -105,7 +105,8 @@ const DB_PANELS = [
   { id: 'jinko_540', brand: 'Jinko Solar', model: 'Tiger Neo JKM540N-72HL4-V 540W', pmax: 540, voc: 49.42, vmp: 40.70, isc: 13.85, tempCoeff: -0.30 }, 
   { id: 'jinko_560', brand: 'Jinko Solar', model: 'Tiger Neo JKM560N-72HL4-BDV 560W', pmax: 560, voc: 50.67, vmp: 41.95, isc: 14.13, tempCoeff: -0.30 }, 
   { id: 'jinko_590', brand: 'Jinko Solar', model: 'Tiger Neo JKM590N-78HL4-BDV 590W', pmax: 590, voc: 54.76, vmp: 44.91, isc: 13.71, tempCoeff: -0.30 },
-  { id: 'jinko_625', brand: 'Jinko Solar', model: 'Tiger Neo JKM625N-78HL4-BDV 625W', pmax: 625, voc: 56.95, vmp: 47.54, isc: 13.80, tempCoeff: -0.30 },  
+  { id: 'jinko_625', brand: 'Jinko Solar', model: 'Tiger Neo JKM625N-78HL4-BDV 625W', pmax: 625, voc: 56.95, vmp: 47.54, isc: 13.80, tempCoeff: -0.30 },
+  { id: 'risen_420', brand: 'Risen Energy', model: 'RSM144-6-420BMDG 420W', pmax: 420, voc: 49.10, vmp: 40.80, isc: 10.90, tempCoeff: -0.30 },
 ];
 
 const getStandardBreaker = (amps) => {
