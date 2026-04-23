@@ -95,6 +95,7 @@ const DB_PANELS = [
   { id: 'longi_630', brand: 'Longi', model: 'LR5-78HGD-630M 630W', pmax: 630, voc: 57.23, vmp: 47.99, isc: 13.91, tempCoeff: -0.27 },
   { id: 'longi_640', brand: 'Longi', model: 'LR7-72HVH-640M 640W', pmax: 640, voc: 53.70, vmp: 44.36, isc: 15.13, tempCoeff: -0.27 }, 
   { id: 'longi_645', brand: 'Longi', model: 'LR7-72HVH-645M 645W', pmax: 645, voc: 53.80, vmp: 44.46, isc: 15.21, tempCoeff: -0.27 }, 
+  { id: 'longi_645', brand: 'Longi', model: 'LR8-66HVD-645M 645W', pmax: 645, voc: 49.62, vmp: 40.88, isc: 16.46, tempCoeff: -0.20 }, 
   { id: 'talesun_550', brand: 'Talesun', model: 'TD7g72M(H)-550 550W', pmax: 550, voc: 40.80, vmp: 41.60, isc: 13.99, tempCoeff: -0.34 },
   { id: 'trina_550', brand: 'Trina', model: 'Vertex 550W', pmax: 550, voc: 38.40, vmp: 31.60, isc: 18.18, tempCoeff: -0.34 },
   { id: 'trina_680', brand: 'Trina', model: 'Vertex TSM-NEGG21C.20 680W', pmax: 680, voc: 47.40, vmp: 39.60, isc: 18.18, tempCoeff: -0.30 },
